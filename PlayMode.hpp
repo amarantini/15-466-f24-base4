@@ -2,6 +2,8 @@
 
 #include "Scene.hpp"
 #include "Sound.hpp"
+#include "Font.hpp"
+#include "Story.hpp"
 
 #include <glm/glm.hpp>
 
@@ -20,29 +22,40 @@ struct PlayMode : Mode {
 	//----- game state -----
 
 	//input tracking:
+	float COOLDOWN_TIME = 0.1f;
 	struct Button {
 		uint8_t downs = 0;
 		uint8_t pressed = 0;
-	} left, right, down, up;
+		float cooldown = 0.0f;
+	} one, two, three, four, enter;
 
-	//local copy of the game scene (so code can change it during gameplay):
-	Scene scene;
+	// font:
+	std::shared_ptr<Font> font = nullptr;
+	unsigned int texture;
 
-	//hexapod leg to wobble:
-	Scene::Transform *hip = nullptr;
-	Scene::Transform *upper_leg = nullptr;
-	Scene::Transform *lower_leg = nullptr;
-	glm::quat hip_base_rotation;
-	glm::quat upper_leg_base_rotation;
-	glm::quat lower_leg_base_rotation;
-	float wobble = 0.0f;
+	// story:
+	std::shared_ptr<Story> story = nullptr;
+	std::string curr_state = "start";
 
-	glm::vec3 get_leg_tip_position();
+	// text:
+	std::shared_ptr<Text> manual = nullptr;
+	std::shared_ptr<Text> title = nullptr;
+	std::shared_ptr<Text> description = nullptr;
+	std::shared_ptr<Text> choice1 = nullptr;
+	std::shared_ptr<Text> choice2 = nullptr;
+	std::shared_ptr<Text> choice3 = nullptr;
+	std::shared_ptr<Text> choice4 = nullptr;
+	std::shared_ptr<Text> outcome = nullptr;
+	std::shared_ptr<Text> status = nullptr;
+	std::shared_ptr<Text> gameover = nullptr;
 
-	//music coming from the tip of the leg (as a demonstration):
-	std::shared_ptr< Sound::PlayingSample > leg_tip_loop;
-	
-	//camera:
-	Scene::Camera *camera = nullptr;
 
+	std::vector<std::shared_ptr<Text> > texts;
+
+	std::array<std::string, 4> choice_ids = {"work", "help", "explore", "escape"};
+	bool choice_made = true;
+
+	void show_next_state();
+	void show_choice_outcome(uint32_t choice_idx);
+	void restart();
 };

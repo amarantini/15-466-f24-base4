@@ -132,6 +132,7 @@ const game_names = [
 	maek.CPP('PlayMode.cpp'),
 	maek.CPP('main.cpp'),
 	maek.CPP('LitColorTextureProgram.cpp'),
+	maek.CPP('TextTextureProgram.cpp'),
 	//maek.CPP('ColorTextureProgram.cpp'),  //not used right now, but you might want it
 	maek.CPP('Sound.cpp'),
 	maek.CPP('load_wav.cpp'),
@@ -150,7 +151,9 @@ const common_names = [
 	maek.CPP('gl_compile_program.cpp'),
 	maek.CPP('Mode.cpp'),
 	maek.CPP('GL.cpp'),
-	maek.CPP('Load.cpp')
+	maek.CPP('Load.cpp'),
+	maek.CPP('Font.cpp'),
+	maek.CPP('Story.cpp'),
 ];
 
 const show_meshes_names = [
@@ -177,7 +180,7 @@ const game_exe = maek.LINK([...game_names, ...common_names], 'dist/game');
 const show_meshes_exe = maek.LINK([...show_meshes_names, ...common_names], 'scenes/show-meshes');
 const show_scene_exe = maek.LINK([...show_scene_names, ...common_names], 'scenes/show-scene');
 
-const freetype_test_exe = maek.LINK([...freetype_test_names], 'freetype-test');
+const freetype_test_exe = maek.LINK([...freetype_test_names, ...common_names], 'freetype-test');
 
 //set the default target to the game (and copy the readme files):
 maek.TARGETS = [game_exe, show_meshes_exe, show_scene_exe, freetype_test_exe, ...copies];
