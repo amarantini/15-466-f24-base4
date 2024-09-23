@@ -28,6 +28,7 @@ How To Play:
 Goal: escape the office
 
 Player need to find the strategy and uncover the rule of the game via trial and error.
+The game has multiple endings. Different choices lead to different endings. So player should be careful about their choices.
 
 Sources: 
 - Open Sans font: https://fonts.google.com/specimen/Open+Sans

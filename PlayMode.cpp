@@ -23,54 +23,60 @@ PlayMode::PlayMode() {
 	// 							/*height*/150, 
 	// 							/*margin*/glm::vec2(10,10), 
 	// 							/*line_height*/20);
-	font = std::make_shared<Font>(font_path, 
+	font_body = std::make_shared<Font>(font_path, 
 								/*font_size*/30, 
-								/*width*/1280,
-								/*height*/720);
+								/*line_height*/35);
+	font_title = std::make_shared<Font>(font_path, 
+								/*font_size*/40,
+								/*line_height*/45);
+	font_manual = std::make_shared<Font>(font_path, 
+								/*font_size*/25, 
+								/*line_height*/30);
 
 	story = std::make_shared<Story>();
-	description = std::make_shared<Text>(story->get_text(curr_state), 
-						/*line height*/35, 
+	description = std::make_shared<Text>(story->get_text("start"), 
 						/*line length*/85, 
-						/*start pos*/glm::vec2(30, 120));
+						/*start pos*/glm::vec2(30, 120),
+						font_body);
 	manual = std::make_shared<Text>("Press 'return' to continue, 123 to make choices", 
-						/*line height*/35, 
 						/*line length*/85, 
-						/*start pos*/glm::vec2(590, 690));
+						/*start pos*/glm::vec2(640, 690),
+						font_manual);
 	title = std::make_shared<Text>("Escape RTO 5 days", 
-						/*line height*/35, 
 						/*line length*/85, 
-						/*start pos*/glm::vec2(500, 60));
-	choice1 = std::make_shared<Text>("", 
-				/*line height*/35, 
+						/*start pos*/glm::vec2(450, 60),
+						font_title);
+	choice1 = std::make_shared<Text>("",
 				/*line length*/70, 
-				/*start pos*/glm::vec2(100, 300));
-	choice2 = std::make_shared<Text>("", 
-				/*line height*/35, 
+				/*start pos*/glm::vec2(100, 300),
+				font_body);
+	choice2 = std::make_shared<Text>("",
 				/*line length*/70, 
-				/*start pos*/glm::vec2(100, 380));
+				/*start pos*/glm::vec2(100, 380),
+				font_body);
 	choice3 = std::make_shared<Text>("", 
-				/*line height*/35, 
 				/*line length*/70, 
-				/*start pos*/glm::vec2(100, 460));
-	choice4 = std::make_shared<Text>("", 
-				/*line height*/35, 
+				/*start pos*/glm::vec2(100, 460),
+				font_body);
+	choice4 = std::make_shared<Text>("",
 				/*line length*/70, 
-				/*start pos*/glm::vec2(100, 540));
-	outcome = std::make_shared<Text>("", 
-				/*line height*/35, 
+				/*start pos*/glm::vec2(100, 540),
+				font_body);
+	outcome = std::make_shared<Text>("",
 				/*line length*/70, 
-				/*start pos*/glm::vec2(100, 500));
-	status = std::make_shared<Text>("", 
-				/*line height*/35, 
+				/*start pos*/glm::vec2(100, 500),
+				font_body);
+	status = std::make_shared<Text>("",
 				/*line length*/150, 
-				/*start pos*/glm::vec2(60, 80));
-	gameover = std::make_shared<Text>("", 
-				/*line height*/35, 
+				/*start pos*/glm::vec2(80, 80),
+				font_body);
+	gameover = std::make_shared<Text>("",
 				/*line length*/70, 
-				/*start pos*/glm::vec2(500, 300));
+				/*start pos*/glm::vec2(500, 300),
+				font_title);
 	texts = {description, manual, title, choice1, choice2, choice3, choice4, outcome, status, gameover};
-	font->gen_texture(texture, texts);
+	gen_texture(texture, texts, /*width*/1280, /*height*/720);
+	choice_texts = {choice1, choice2, choice3, choice4};
 	
 	//get pointer to camera for convenience:
 	// if (scene.cameras.size() != 1) throw std::runtime_error("Expecting scene to have exactly one camera, but it has " + std::to_string(scene.cameras.size()));
@@ -144,27 +150,34 @@ void PlayMode::update(float elapsed) {
 	bool need_update_texture = false;
 
 	if(!story->is_end) {
+		uint32_t choice_idx = 0;
 		if(!choice_made) {
 			if(one.downs) {
 				one.cooldown = COOLDOWN_TIME;
 				need_update_texture = true;
-				show_choice_outcome(0);
+				choice_idx = 0;
 			}
 			if(two.downs) {
 				two.cooldown = COOLDOWN_TIME;
 				need_update_texture = true;
-				show_choice_outcome(1);
+				choice_idx = 1;
 			}
 			if(three.downs) {
 				three.cooldown = COOLDOWN_TIME;
 				need_update_texture = true;
-				show_choice_outcome(2);
+				choice_idx = 2;
 			}
 			if(four.downs) {
 				four.cooldown = COOLDOWN_TIME;
 				need_update_texture = true;
-				show_choice_outcome(3);
+				choice_idx = 3;
 			}
+			if(need_update_texture) {
+				choice_id = choice_ids[choice_idx];
+				show_choice_outcome(choice_idx);
+			}
+			
+			
 		}
 		
 		if(choice_made && enter.downs) {
@@ -185,7 +198,7 @@ void PlayMode::update(float elapsed) {
 	}
 	
 	if(need_update_texture) {
-		font->gen_texture(texture, texts);
+		gen_texture(texture, texts, /*width*/1280, /*height*/720);
 		need_update_texture = false;
 	}
 
@@ -229,7 +242,11 @@ void PlayMode::draw(glm::uvec2 const &drawable_size) {
 	if(!story->is_end) {
 		glUniform3f(glGetUniformLocation(text_texture_program->program, "textColor"), 1.0f, 1.0f, 1.0f);
 	} else {
-		glUniform3f(glGetUniformLocation(text_texture_program->program, "textColor"), 1.0f, 0.0f, 0.0f);
+		if(story->is_escaped) {
+			glUniform3f(glGetUniformLocation(text_texture_program->program, "textColor"), 0.0f, 1.0f, 0.0f);
+		} else {
+			glUniform3f(glGetUniformLocation(text_texture_program->program, "textColor"), 1.0f, 0.0f, 0.0f);
+		}
 	}
 	glBindVertexArray(text_texture_program->VAO);
 	GL_ERRORS();
@@ -246,11 +263,15 @@ void PlayMode::draw(glm::uvec2 const &drawable_size) {
 	GL_ERRORS();
 }
 
-void PlayMode::show_choice_outcome(uint32_t choice_idx){
-	std::string& choice_id = choice_ids[choice_idx];
+void PlayMode::show_choice_outcome(uint32_t choice_idx) {
+	std::string error = "choice_idx"+std::to_string(choice_idx)+"out of range. Size of choice_ids = "+std::to_string(choice_ids.size());
+	if(choice_idx >= choice_ids.size()) {
+		throw std::runtime_error(error);
+	}
+	std::string choice_id = choice_ids[choice_idx];
 
-	if(choice_idx == 3) {
-		// if escape, show outcome and end game
+	if(choice_id == "escape" || choice_id == "boss" || choice_id == "yourself") {
+		// leads to game over, show outcome and end game
 		description->text = story->get_choice_outcome_text(choice_id);
 		choice1->text = "";
 		choice2->text = "";
@@ -270,7 +291,7 @@ void PlayMode::show_choice_outcome(uint32_t choice_idx){
 }
 
 void PlayMode::show_next_state() {
-	curr_state = story->get_next_state(curr_state);
+	std::string curr_state = story->get_next_state(choice_id, choice_ids);
 	description->text = story->get_text(curr_state);
 
 	// hide outcome
@@ -278,24 +299,23 @@ void PlayMode::show_next_state() {
 
 	// reset choices
 	if(story->is_end) {
-		choice1->text = "";
-		choice2->text = "";
-		choice3->text = "";
-		choice4->text = "";
+		for(auto& choice_text : choice_texts) {
+			choice_text->text = "";
+		}
 		gameover->text = "Game Over";
 	} else {
-		choice1->text = "1. "+story->get_text("work");
-		choice2->text = "2. "+story->get_text("help");
-		choice3->text = "3. "+story->get_text("explore");
-		choice4->text = "4. "+story->get_text("escape");
+		for(uint32_t i = 1; i <= choice_texts.size(); i++) {
+			choice_texts[i-1]->text = std::to_string(i)+". "+story->get_text(choice_ids[i-1]);
+		}
+
 	}
 	status->text = "Day "+std::to_string(story->day)+"                                                                                                           Work done: "+std::to_string(story->work_done);
+	choice_id = "";
 }
 
 void PlayMode::restart(){
 	story->reset();
-	curr_state = "start";
-	description->text = story->get_text(curr_state);
+	description->text = story->get_text("start");
 	choice1->text = "";
 	choice2->text = "";
 	choice3->text = "";
@@ -304,4 +324,5 @@ void PlayMode::restart(){
 	status->text = "";
 	gameover->text = "";
 	choice_made = true;
+	choice_ids = {"work", "explore", "help", "escape"};
 }

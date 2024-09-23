@@ -14,30 +14,32 @@
 #include "data_path.hpp"
 #include "GL.hpp"
 
-struct Text {
-    std::string text;
-    float line_height;
-    float line_length; // max length of a line
-    glm::vec2 start_pos; // start at start_pos.x and start_pos.y
-
-    Text(std::string text, float line_height, float line_length, glm::vec2 start_pos) : text(text), line_height(line_height), line_length(line_length), start_pos(start_pos){}
-    Text(){}
-};
-
-class Font {
-public:
-    Font(std::string const &font_path, int font_size, unsigned int width, unsigned int height);
+struct Font {
+    Font(std::string const &font_path, int font_size, float line_height);
     ~Font();
 
-    void gen_texture(unsigned int& texture, std::vector<std::shared_ptr<Text> > const &texts);
+    void load_text(std::string const &text);
 
-    std::vector<std::string> wrapText(const std::string& text, size_t line_length = 85);
+    void load_glyph(hb_codepoint_t gid);
 
     FT_Library ft_library;
 	FT_Face ft_face;
     hb_font_t *hb_font;
     hb_buffer_t *hb_buffer;
     int font_size;
-    unsigned int width;
-    unsigned int height;
+    float line_height;
 };
+
+struct Text {
+    std::string text;
+    float line_length; // max length of a line
+    glm::vec2 start_pos; // start at start_pos.x and start_pos.y
+    std::shared_ptr<Font> font;
+
+    Text(std::string text, float line_length, glm::vec2 start_pos,std::shared_ptr<Font> font ) : text(text), line_length(line_length), start_pos(start_pos), font(font) {}
+    Text(){}
+};
+
+void gen_texture(unsigned int& texture, std::vector<std::shared_ptr<Text> > const &texts, unsigned int width, unsigned int height);
+
+std::vector<std::string> wrapText(const std::string& text, size_t line_length = 85);

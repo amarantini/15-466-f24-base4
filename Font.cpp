@@ -2,10 +2,9 @@
 #include "Font.hpp"
 #include "gl_errors.hpp"
 
-Font::Font(std::string const &font_path, int font_size, unsigned int width, unsigned int height) {
+Font::Font(std::string const &font_path, int font_size, float line_height) {
     this->font_size = font_size;
-    this->width = width;
-    this->height = height;
+    this->line_height = line_height;
 
     const char *fontfile = font_path.c_str();
     FT_Error ft_error;
@@ -36,7 +35,36 @@ Font::~Font() {
     FT_Done_FreeType(ft_library);
 }
 
-void Font::gen_texture(unsigned int& texture, std::vector<std::shared_ptr<Text>> const &texts) {
+void Font::load_text(std::string const &text) {
+    hb_buffer_clear_contents(hb_buffer);
+    // hb_buffer_reset(hb_buffer);
+    hb_buffer_add_utf8 (hb_buffer, text.c_str(), -1, 0, -1);
+    hb_buffer_guess_segment_properties (hb_buffer);
+    // hb_buffer_set_direction(hb_buffer, HB_DIRECTION_LTR);
+    // hb_buffer_set_script(hb_buffer, HB_SCRIPT_COMMON);
+    // hb_buffer_set_language(hb_buffer, hb_language_from_string("en", -1));
+    // hb_font_set_scale(hb_font, font_size * 64, font_size * 64);
+
+    /* Shape it! */
+    hb_shape (hb_font, hb_buffer, NULL, 0);
+}
+
+void Font::load_glyph(hb_codepoint_t gid) {
+    /* load glyph image into the slot (erase previous one) */
+    FT_Error ft_error;
+    FT_GlyphSlot slot = ft_face->glyph;
+
+    if((ft_error = FT_Load_Glyph(ft_face, 
+    gid, // the glyph_index in the font file
+    FT_LOAD_DEFAULT))) {
+        return;
+    }
+    if((ft_error = FT_Render_Glyph(slot, FT_RENDER_MODE_NORMAL))) {
+        return;
+    }
+}
+
+void gen_texture(unsigned int& texture, std::vector<std::shared_ptr<Text>> const &texts, unsigned int width, unsigned int height) {
     
     /* Initialize image. Origin is the upper left corner */
     unsigned char image[height][width];
@@ -44,10 +72,10 @@ void Font::gen_texture(unsigned int& texture, std::vector<std::shared_ptr<Text>>
         for (int j = 0; j < width; j++ )
             image[i][j] = 0;
     }
-    FT_Error ft_error;
-    FT_GlyphSlot slot = ft_face->glyph;
+    
+    FT_GlyphSlot slot;
 
-    auto draw_bitmap = [&image, this](FT_Bitmap*  bitmap, FT_Int x, FT_Int y) {
+    auto draw_bitmap = [&image, &width, &height](FT_Bitmap*  bitmap, FT_Int x, FT_Int y) {
         FT_Int  i, j, p, q;
         FT_Int  x_max = x + bitmap->width;
         FT_Int  y_max = y + bitmap->rows;
@@ -67,7 +95,10 @@ void Font::gen_texture(unsigned int& texture, std::vector<std::shared_ptr<Text>>
     };
 
     for(auto& text: texts) {
-            // break text by newlines
+        slot = text->font->ft_face->glyph;
+        hb_buffer_t *hb_buffer = text->font->hb_buffer;
+
+        // break text by newlines
         std::vector<std::string> lines = wrapText(text->text, text->line_length);
 
         double current_x = text->start_pos.x;
@@ -75,17 +106,7 @@ void Font::gen_texture(unsigned int& texture, std::vector<std::shared_ptr<Text>>
 
         for(std::string& line: lines) {
             /* Create hb-buffer and populate. */
-            hb_buffer_clear_contents(hb_buffer);
-            // hb_buffer_reset(hb_buffer);
-            hb_buffer_add_utf8 (hb_buffer, line.c_str(), -1, 0, -1);
-            hb_buffer_guess_segment_properties (hb_buffer);
-            // hb_buffer_set_direction(hb_buffer, HB_DIRECTION_LTR);
-            // hb_buffer_set_script(hb_buffer, HB_SCRIPT_COMMON);
-            // hb_buffer_set_language(hb_buffer, hb_language_from_string("en", -1));
-            // hb_font_set_scale(hb_font, font_size * 64, font_size * 64);
-
-            /* Shape it! */
-            hb_shape (hb_font, hb_buffer, NULL, 0);
+            text->font->load_text(line);
 
             /* Get glyph information and positions out of the buffer. */
             unsigned int len = hb_buffer_get_length(hb_buffer);
@@ -98,18 +119,9 @@ void Font::gen_texture(unsigned int& texture, std::vector<std::shared_ptr<Text>>
                     // calculate position
                     hb_codepoint_t gid = info[i].codepoint;
                     // unsigned int cluster = info[i].cluster;
-                    char glyphname[32];
-                    hb_font_get_glyph_name (hb_font, gid, glyphname, sizeof (glyphname));
-                    
-                    /* load glyph image into the slot (erase previous one) */
-                    if((ft_error = FT_Load_Glyph(ft_face, 
-                    gid, // the glyph_index in the font file
-                    FT_LOAD_DEFAULT))) {
-                        continue;
-                    }
-                    if((ft_error = FT_Render_Glyph(slot, FT_RENDER_MODE_NORMAL))) {
-                        continue;
-                    }
+                    // char glyphname[32];
+                    // hb_font_get_glyph_name (hb_font, gid, glyphname, sizeof (glyphname));
+                    text->font->load_glyph(gid);
 
                     double x_position = current_x + pos[i].x_offset / 64. + slot->bitmap_left;
                     double y_position = current_y + pos[i].y_offset / 64. - slot->bitmap_top;
@@ -129,7 +141,7 @@ void Font::gen_texture(unsigned int& texture, std::vector<std::shared_ptr<Text>>
                 }
             }
             current_x = text->start_pos.x;
-            current_y += text->line_height;
+            current_y += text->font->line_height;
         }
     }
     
@@ -178,7 +190,7 @@ void Font::gen_texture(unsigned int& texture, std::vector<std::shared_ptr<Text>>
     delete[] data;
 }
 
-std::vector<std::string> Font::wrapText(const std::string& text, size_t line_length) {
+std::vector<std::string> wrapText(const std::string& text, size_t line_length) {
     std::vector<std::string> lines;
     size_t start = 0;
     

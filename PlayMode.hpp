@@ -28,14 +28,17 @@ struct PlayMode : Mode {
 		uint8_t pressed = 0;
 		float cooldown = 0.0f;
 	} one, two, three, four, enter;
+	std::array<Button*,4> choice_buttons = {&one, &two, &three, &four};
 
 	// font:
-	std::shared_ptr<Font> font = nullptr;
+	std::shared_ptr<Font> font_title = nullptr;
+	std::shared_ptr<Font> font_body = nullptr;
+	std::shared_ptr<Font> font_manual = nullptr;
 	unsigned int texture;
 
 	// story:
 	std::shared_ptr<Story> story = nullptr;
-	std::string curr_state = "start";
+	
 
 	// text:
 	std::shared_ptr<Text> manual = nullptr;
@@ -52,7 +55,9 @@ struct PlayMode : Mode {
 
 	std::vector<std::shared_ptr<Text> > texts;
 
-	std::array<std::string, 4> choice_ids = {"work", "help", "explore", "escape"};
+	std::vector<std::string> choice_ids = {"work", "explore", "help", "escape"};
+	std::array<std::shared_ptr<Text>,4> choice_texts;
+	std::string choice_id = "";
 	bool choice_made = true;
 
 	void show_next_state();
