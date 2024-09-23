@@ -37,11 +37,8 @@ Story::Story() {
     choices["explore"].push_back("You manage to sneak into the storage room and find a keycard.");
     choices["explore"].push_back("The keycard works! You’ve unlocked the locked door which leads to the HR office. You found the HR's computer. Perhaps you can hack into the computer and find something. But it needs some time.");
     choices["explore"].push_back("You hacks into HR's computer and find a PIP (Performance Improvement Plan) list and an emergency exit plan. People added to the PIP list will be fired. You think you have a plan.");
+    choices["explore"].push_back("Following the emergency exit plan, you find a hidden exit. The escape seems to be now within reach.");
     choices["explore"].push_back("You have already explored the office and found nothing new.");
-    // choices["explore"].push_back("The keycard works! You’ve unlocked the locked door which leads to the control room. Perhaps you can dig into the security system and find a weakness. But it needs some time.");
-    // choices["explore"].push_back("You hacks into the security system and find logs showing the security camera schedule. This could help you avoid detection later when you try to escape.");
-    // choices["explore"].push_back("You use the camera schedule to avoid detection and discover an emergency exit plan pinned in the HR office.");
-    // choices["explore"].push_back("You have already explored the office and found nothing new.");
 
     choices["help"].push_back("You help your colleague with the bug. But your colleague does not express any appreciation.");
     choices["help"].push_back("You help your colleague with another bug. Your colleague thanks you this time and in return teaches you to use a powerful AI assistant that can double your work efficiency.");
