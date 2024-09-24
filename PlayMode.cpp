@@ -174,7 +174,7 @@ void PlayMode::update(float elapsed) {
 				need_update_texture = true;
 				choice_idx = 3;
 			}
-			if(need_update_texture) {
+			if(need_update_texture && choice_idx < choice_ids.size()) {
 				choice_id = choice_ids[choice_idx];
 				show_choice_outcome(choice_idx);
 			}
@@ -311,6 +311,10 @@ void PlayMode::show_next_state() {
 		}
 	} else {
 		for(uint32_t i = 1; i <= choice_texts.size(); i++) {
+			if(i > choice_ids.size()) {
+				choice_texts[i-1]->text = "";
+				continue;
+			}
 			choice_texts[i-1]->text = std::to_string(i)+". "+story->get_text(choice_ids[i-1]);
 		}
 

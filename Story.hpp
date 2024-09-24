@@ -46,6 +46,9 @@ public:
     bool is_escapable();
 
     void copy_vector(std::vector<std::string>& src, std::vector<std::string>& dest) {
+        if(dest.size() != src.size()) {
+            dest.resize(src.size());
+        }
         for(int i=0; i<dest.size(); i++) {
             dest[i] = src[i];
         }

@@ -99,6 +99,7 @@ std::string Story::get_choice_outcome_text(std::string choice_id) {
             return choices["escape"][2];
         }
     } else if (choice_id == "colleague") {
+        choice_set["daily"] = {"work", "explore", "escape"};
         is_colleague_pipped = true;
         return choices["pip"][0];
     } else if (choice_id == "none") {
@@ -174,4 +175,5 @@ void Story::reset() {
     curr_state_id = "start";
     prev_state_id = "";
     is_colleague_pipped = false;
+    choice_set["daily"] = {"work", "explore", "help", "escape"};
 }
