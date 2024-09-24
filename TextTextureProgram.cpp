@@ -13,19 +13,18 @@ Load< TextTextureProgram > text_texture_program(LoadTagEarly, []() -> TextTextur
 	glGenTextures(1, &tex);
 
 	glBindTexture(GL_TEXTURE_2D, tex);
-	std::vector< unsigned char > tex_data(1, 0xff);
-	 glTexImage2D(
+	std::vector< glm::u8vec4 > tex_data(1, glm::u8vec4(0xff));
+	glTexImage2D(
         GL_TEXTURE_2D,
         0,
-        GL_RED,
+        GL_RGBA,
         1,
         1,
         0,
-        GL_RED,
+        GL_RGBA,
         GL_UNSIGNED_BYTE,
         tex_data.data()
     );
-	// glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, 1, 1, 0, GL_RGBA, GL_UNSIGNED_BYTE, tex_data.data());
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
@@ -64,12 +63,10 @@ in vec2 TexCoords;
 out vec4 color;
 
 uniform sampler2D text;
-uniform vec3 textColor;
 
 void main()
 {    
-    vec4 sampled = vec4(1.0, 1.0, 1.0, texture(text, TexCoords).r);
-    color = vec4(textColor, 1.0) * sampled;
+    color = texture(text, TexCoords);
 })"
 	);
 	//As you can see above, adjacent strings in C/C++ are concatenated.
@@ -85,7 +82,6 @@ void main()
 	glUseProgram(program); //bind program -- glUniform* calls refer to this program now
 
 	glUniform1i(TEX_sampler2D, 0); //set TEX to sample from GL_TEXTURE0
-	glUniform3f(glGetUniformLocation(program, "textColor"), 1.0f, 1.0f, 1.0f);
 
 	glGenVertexArrays(1, &VAO); 
 	glBindVertexArray(VAO); 

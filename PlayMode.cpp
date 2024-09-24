@@ -239,15 +239,6 @@ void PlayMode::draw(glm::uvec2 const &drawable_size) {
 	glEnable(GL_DEPTH_TEST);
 	glDepthFunc(GL_LESS); //this is the default depth comparison function, but FYI you can change it.
 
-	if(!story->is_end) {
-		glUniform3f(glGetUniformLocation(text_texture_program->program, "textColor"), 1.0f, 1.0f, 1.0f);
-	} else {
-		if(story->is_escaped) {
-			glUniform3f(glGetUniformLocation(text_texture_program->program, "textColor"), 0.0f, 1.0f, 0.0f);
-		} else {
-			glUniform3f(glGetUniformLocation(text_texture_program->program, "textColor"), 1.0f, 0.0f, 0.0f);
-		}
-	}
 	glBindVertexArray(text_texture_program->VAO);
 	GL_ERRORS();
 	glActiveTexture(GL_TEXTURE0);
@@ -278,6 +269,13 @@ void PlayMode::show_choice_outcome(uint32_t choice_idx) {
 		choice3->text = "";
 		choice4->text = "";
 		gameover->text = "Game Over";
+		if(story->is_escaped) {
+			gameover->color = glm::u8vec3(0, 255, 0);
+			description->color = glm::u8vec3(0, 255, 0);
+		} else {
+			gameover->color = glm::u8vec3(255, 0, 0);
+			description->color = glm::u8vec3(255, 0, 0);
+		}
 		return;
 	}
 	
@@ -303,6 +301,13 @@ void PlayMode::show_next_state() {
 			choice_text->text = "";
 		}
 		gameover->text = "Game Over";
+		if(story->is_escaped) {
+			gameover->color = glm::u8vec3(0, 255, 0);
+			description->color = glm::u8vec3(0, 255, 0);
+		} else {
+			gameover->color = glm::u8vec3(255, 0, 0);
+			description->color = glm::u8vec3(255, 0, 0);
+		}
 	} else {
 		for(uint32_t i = 1; i <= choice_texts.size(); i++) {
 			choice_texts[i-1]->text = std::to_string(i)+". "+story->get_text(choice_ids[i-1]);
@@ -325,4 +330,6 @@ void PlayMode::restart(){
 	gameover->text = "";
 	choice_made = true;
 	choice_ids = {"work", "explore", "help", "escape"};
+	gameover->color = glm::u8vec3(255, 255, 255);
+	description->color = glm::u8vec3(255, 255, 255);
 }

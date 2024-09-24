@@ -67,15 +67,16 @@ void Font::load_glyph(hb_codepoint_t gid) {
 void gen_texture(unsigned int& texture, std::vector<std::shared_ptr<Text>> const &texts, unsigned int width, unsigned int height) {
     
     /* Initialize image. Origin is the upper left corner */
-    unsigned char image[height][width];
+    glm::u8vec4 image[height][width];
     for (int i = 0; i < height; i++ ){
-        for (int j = 0; j < width; j++ )
-            image[i][j] = 0;
+        for (int j = 0; j < width; j++ ) {
+            image[i][j] = glm::u8vec4(0x00);
+        }    
     }
     
     FT_GlyphSlot slot;
 
-    auto draw_bitmap = [&image, &width, &height](FT_Bitmap*  bitmap, FT_Int x, FT_Int y) {
+    auto draw_bitmap = [&image, &width, &height](FT_Bitmap*  bitmap, FT_Int x, FT_Int y, glm::u8vec3 color) {
         FT_Int  i, j, p, q;
         FT_Int  x_max = x + bitmap->width;
         FT_Int  y_max = y + bitmap->rows;
@@ -89,7 +90,8 @@ void gen_texture(unsigned int& texture, std::vector<std::shared_ptr<Text>> const
                     i >= width || j >= height )
                     continue;
 
-                image[j][i] |= bitmap->buffer[q * bitmap->width + p];
+                image[j][i][3] = bitmap->buffer[q * bitmap->width + p];
+                image[j][i] = glm::u8vec4(color, image[j][i][3]);
             }
         }
     };
@@ -136,7 +138,8 @@ void gen_texture(unsigned int& texture, std::vector<std::shared_ptr<Text>> const
 
                     draw_bitmap( &slot->bitmap,
                                 x_position,
-                                y_position);
+                                y_position,
+                                text->color);
                     
                 }
             }
@@ -157,7 +160,7 @@ void gen_texture(unsigned int& texture, std::vector<std::shared_ptr<Text>> const
     //     }
     // }
 
-    unsigned char* data = new unsigned char[width*height];
+    glm::u8vec4* data = new glm::u8vec4[width*height];
     int k = 0;
     for (int i = height-1; i >= 0; i-- ){
         for (int j = 0; j < width; j++ )
@@ -169,11 +172,11 @@ void gen_texture(unsigned int& texture, std::vector<std::shared_ptr<Text>> const
     glTexImage2D(
         GL_TEXTURE_2D,
         0,
-        GL_RED,
+        GL_RGBA,
         width,
         height,
         0,
-        GL_RED,
+        GL_RGBA,
         GL_UNSIGNED_BYTE,
         data
     );

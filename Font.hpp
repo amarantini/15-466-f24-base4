@@ -35,6 +35,7 @@ struct Text {
     float line_length; // max length of a line
     glm::vec2 start_pos; // start at start_pos.x and start_pos.y
     std::shared_ptr<Font> font;
+    glm::u8vec3 color = glm::u8vec3(255, 255, 255);
 
     Text(std::string text, float line_length, glm::vec2 start_pos,std::shared_ptr<Font> font ) : text(text), line_length(line_length), start_pos(start_pos), font(font) {}
     Text(){}
