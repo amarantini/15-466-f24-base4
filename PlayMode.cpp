@@ -16,7 +16,9 @@
 
 PlayMode::PlayMode() {
 	// initialize font
-	std::string font_path = data_path("Open_Sans/OpenSans-VariableFont_wdth,wght.ttf");
+	std::string font_path = data_path("Open_Sans/static/OpenSans-Regular.ttf");
+	std::string font_path_bold = data_path("Open_Sans/static/OpenSans-Bold.ttf");
+	std::string font_path_italic = data_path("Open_Sans/static/OpenSans-Italic.ttf");
 	// font = std::make_shared<Font>(font_path, 
 	// 							/*font_size*/18, 
 	// 							/*width*/150, 
@@ -26,21 +28,21 @@ PlayMode::PlayMode() {
 	font_body = std::make_shared<Font>(font_path, 
 								/*font_size*/30, 
 								/*line_height*/35);
-	font_title = std::make_shared<Font>(font_path, 
+	font_title = std::make_shared<Font>(font_path_bold, 
 								/*font_size*/40,
 								/*line_height*/45);
-	font_manual = std::make_shared<Font>(font_path, 
+	font_manual = std::make_shared<Font>(font_path_italic, 
 								/*font_size*/25, 
 								/*line_height*/30);
 
 	story = std::make_shared<Story>();
 	description = std::make_shared<Text>(story->get_text("start"), 
-						/*line length*/85, 
-						/*start pos*/glm::vec2(30, 120),
+						/*line length*/80, 
+						/*start pos*/glm::vec2(50, 120),
 						font_body);
 	manual = std::make_shared<Text>("Press 'return' to continue, 123 to make choices", 
 						/*line length*/85, 
-						/*start pos*/glm::vec2(640, 690),
+						/*start pos*/glm::vec2(700, 690),
 						font_manual);
 	title = std::make_shared<Text>("Escape RTO 5 days", 
 						/*line length*/85, 
@@ -291,7 +293,6 @@ void PlayMode::show_choice_outcome(uint32_t choice_idx) {
 void PlayMode::show_next_state() {
 	std::string curr_state = story->get_next_state(choice_id, choice_ids);
 	description->text = story->get_text(curr_state);
-
 	// hide outcome
 	outcome->text = "";
 
