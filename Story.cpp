@@ -2,7 +2,7 @@
 
 Story::Story() {
     // states
-    texts["start"] = "You are a software engineer. One day, you receive a dreaded notice from your boss: you are required to return to the office five days a week. Reluctantly, you comply, but when you arrive at the office, something isn't right. The doors lock behind you, and you realize you are trapped. Your boss demands that you work around the clock, 24 hours a day, without rest. The office has become a prison, and the workload is inhumane. You know you cannot survive in this suffocating environment for long. Now, you must find a way to escape before it is too late. You have only 5 days.";
+    texts["start"] = "You are a software engineer. One day, you receive a dreaded notice from your boss: you are required to return to the office (RTO) five days a week. Reluctantly, you comply, but when you arrive at the office, something isn't right. The doors lock behind you, and you realize you are trapped. Your boss demands that you work around the clock, 24 hours a day, without rest. The office has become a prison, and the workload is inhumane. You know you cannot survive in this suffocating environment for long. Now, you must find a way to escape before it is too late. You have only 5 days.";
 
     texts["daily1"] = "It's the start of a new day, 00:00. Midnight strikes, but sleep is a luxury you can’t afford. You sit at your desk, the clock ticking loudly in the silence. Time is limited, but so are your choices.";
     texts["daily2"] = "It's 06:00. Usually, you wouldn't be awake at this hour. But here you are, having already worked six hours, with a long day still ahead. You sit at your desk, the clock ticking loudly in the silence. Time is limited, but so are your choices.";
