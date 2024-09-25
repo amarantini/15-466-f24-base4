@@ -48,6 +48,7 @@ Story::Story() {
     choices["escape"].push_back("Your colleague reports your escape plan to the boss. As you make your move, you are caught right by the boss. Now, there's no way out and you'll face the harshest punishment!");
     choices["escape"].push_back("You escape the office with your colleague's help. You finally breaks free from the prison. The nightmare has ended. But who knows what awaits you outside.");
     choices["escape"].push_back("You are desparate and you attempt to escape. But you are too imprudent and get caught by the security guard. Now, the worst punishment awaits you.");
+    choices["escape"].push_back("You escape the office. You finally breaks free from the prison. The nightmare has ended. But who knows what awaits you outside.");
 
     choices["pip"].push_back("Your colleague vanishes quietly, never to be seen again. You feel a mixed feeling of relief, regret and fear. But life continues, and you have to find a way out."); // colleague
     choices["pip"].push_back("You hold back at the last moment. This PIP list is dangerous. You do not want to touch it.");
@@ -89,6 +90,9 @@ std::string Story::get_choice_outcome_text(std::string choice_id) {
             if(help_done >= TOTAL_HELP_DONE_TO_ESCAPE || is_colleague_pipped) {
                 // escape successfully
                 is_escaped = true;
+                if(is_colleague_pipped) {
+                    return choices["escape"][3];
+                }
                 return choices["escape"][1];
             } else {
                 // reported by colleague, fails

@@ -40,7 +40,7 @@ PlayMode::PlayMode() {
 						/*line length*/80, 
 						/*start pos*/glm::vec2(50, 120),
 						font_body);
-	manual = std::make_shared<Text>("Press 'return' to continue, 123 to make choices", 
+	manual = std::make_shared<Text>("Press 'return' to continue, 1234 to make choices", 
 						/*line length*/85, 
 						/*start pos*/glm::vec2(700, 690),
 						font_manual);
